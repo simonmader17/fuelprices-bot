@@ -40,13 +40,6 @@ async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     else:
         requests.post(api + "/chatIDs", json={"chatId": chat_id})
         await update.message.reply_text("You are now receiving updates on new price lows and highs.")
-    # jobs = context.job_queue.get_jobs_by_name(str(chat_id))
-    # if jobs:
-    #     await update.message.reply_text("You are already receiving updates on new price lows!")
-    # else:
-    #     wait_minutes = timedelta(minutes=61 - datetime.now().minute)
-    #     context.job_queue.run_repeating(check_new_low, interval=3600, first=wait_minutes, chat_id=chat_id, name=str(chat_id))
-    #     await update.message.reply_text("You are now receiving updates on new price lows.")
 
 async def stop_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     print("Processing /stop...")
@@ -57,43 +50,6 @@ async def stop_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text("You are no longer receiving updates on new price lows and highs! Start again with /start")
     else:
         await update.message.reply_text("You haven't executed /start yet.")
-    # job = context.job_queue.get_jobs_by_name(str(chat_id))[0]
-    # job.schedule_removal()
-    # await update.message.reply_text("You are no longer receiving update on new price lows! Start again with /start")
-
-# async def check_new_low(context: ContextTypes.DEFAULT_TYPE):
-#     print("Checking for new lows...")
-
-#     text = []
-#     avanti = json.loads(requests.get(api + "/latestAvanti").text)
-#     low_month_avanti = json.loads(requests.get(api + "/lowestAvantiMonth").text)
-#     if avanti["avanti"] < low_month_avanti:
-#         # New avanti monthly low
-#         text.append(f"""❗❗❗New monthly low for avanti❗❗❗
-# Avanti ({datetime.fromisoformat(avanti['timestamp']).astimezone().strftime('%d.%m.%y, %H:%M')}): {avanti['avanti']} €""")
-#     else:
-#         low_week_avanti = json.loads(requests.get(api + "/lowestAvantiWeek").text)
-#         if avanti["avanti"] < low_week_avanti:
-#             # New avanti weekly low
-#             text.append(f"""❗New weekly low for avanti❗
-# Avanti ({datetime.fromisoformat(avanti['timestamp']).astimezone().strftime('%d.%m.%y, %H:%M')}): {avanti['avanti']} €""")
-#     jet = json.loads(requests.get(api + "/latestJet").text)
-#     low_month_jet = json.loads(requests.get(api + "/lowestJetMonth").text)
-#     if jet["jet"] < low_month_jet:
-#         # New jet monthly low
-#         text.append(f"""❗❗❗New monthly low for jet❗❗❗
-# Jet ({datetime.fromisoformat(jet['timestamp']).astimezone().strftime('%d.%m.%y, %H:%M')}): {jet['jet']} €""")
-#     else:
-#         low_week_jet = json.loads(requests.get(api + "/lowestJetWeek").text)
-#         if jet["jet"] < low_week_jet:
-#             # New jet weekly low
-#             text.append(f"""❗New weekly low for jet❗
-# Jet ({datetime.fromisoformat(jet['timestamp']).astimezone().strftime('%d.%m.%y, %H:%M')}): {jet['jet']} €""")
-
-#     if len(text) > 0:
-#         job = context.job
-#         chat_id = job.chat_id
-#         await context.bot.send_message(chat_id, text="\n".join(text))
 
 # Messages
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
