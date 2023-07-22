@@ -15,12 +15,14 @@ api = os.getenv("API")
 # Commands
 async def latest_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     print("Processing /latest...")
-    res_avanti = requests.get(api + "/latestAvanti")
-    res_jet = requests.get(api + "/latestJet")
-    avanti = json.loads(res_avanti.text)
-    jet = json.loads(res_jet.text)
-    text = f"""Avanti ({datetime.fromisoformat(avanti['timestamp']).astimezone().strftime('%d.%m.%y, %H:%M')}): {avanti['avanti']} €
-Jet ({datetime.fromisoformat(jet['timestamp']).astimezone().strftime('%d.%m.%y, %H:%M')}): {jet['jet']} €"""
+    avanti = json.loads(requests.get(api + "/latestAvanti").text)
+    jet = json.loads(requests.get(api + "/latestJet").text)
+    jet_langenrohr = json.loads(requests.get(api + "/latestJetLangenrohr").text)
+    bp = json.loads(requests.get(api + "/latestBp").text)
+    text = f"""Avanti St. Pölten ({datetime.fromisoformat(avanti['timestamp']).astimezone().strftime('%d.%m.%y, %H:%M')}): {avanti['avanti']} €
+Jet St. Pölten ({datetime.fromisoformat(jet['timestamp']).astimezone().strftime('%d.%m.%y, %H:%M')}): {jet['jet']} €
+Jet Langenrohr ({datetime.fromisoformat(jet_langenrohr['timestamp']).astimezone().strftime('%d.%m.%y, %H:%M')}): {jet_langenrohr['jetLangenrohr']} €
+BP Böheimkirchen ({datetime.fromisoformat(bp['timestamp']).astimezone().strftime('%d.%m.%y, %H:%M')}): {bp['bp']} €"""
     await update.message.reply_text(text)
 
 async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
