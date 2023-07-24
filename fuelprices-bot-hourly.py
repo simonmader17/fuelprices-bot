@@ -25,18 +25,23 @@ async def check_new_low():
     text = []
     for station in gas_stations:
         station_latest = json.loads(requests.get(api + f"/latest{station[0].upper() + station[1:]}").text)
-        if station_latest[station] < lowest_month[station]:
+        station_before_latest = json.loads(requests.get(api + f"/latest{station[0].upper() + station[1:]}?i=1").text)
+        if station_latest[station] == station_before_latest[station]:
+            continue;
+        elif station_latest[station] <= lowest_month[station]:
             # New monthly low
             text.append(f"""🟩🟩🟩New monthly low for {station.upper()}🟩🟩🟩
 {station.upper()} ({datetime.fromisoformat(station_latest['timestamp']).astimezone().strftime('%d.%m.%y, %H:%M')}): {station_latest[station]} €""")
-        elif station_latest[station] < lowest_week[station]:
+        elif station_latest[station] <= lowest_week[station]:
             text.append(f"""🟩New weekly low for {station.upper()}🟩
 {station.upper()} ({datetime.fromisoformat(station_latest['timestamp']).astimezone().strftime('%d.%m.%y, %H:%M')}): {station_latest[station]} €""")
 
     if len(text) > 0:
+        message_text = "\n".join(text)
+        print(message_text)
         chat_ids = json.loads(requests.get(api + "/chatIDs").text)
         for chat_id in chat_ids:
-            await bot.send_message(chat_id=chat_id, text="\n".join(text))
+            await bot.send_message(chat_id=chat_id, text=message_text)
 
 async def check_new_high():
     print("Checking for new highs...")
@@ -44,18 +49,23 @@ async def check_new_high():
     text = []
     for station in gas_stations:
         station_latest = json.loads(requests.get(api + f"/latest{station[0].upper() + station[1:]}").text)
-        if station_latest[station] > highest_month[station]:
+        station_before_latest = json.loads(requests.get(api + f"/latest{station[0].upper() + station[1:]}?i=1").text)
+        if station_latest[station] == station_before_latest[station]:
+            continue;
+        elif station_latest[station] >= highest_month[station]:
             # New monthly low
             text.append(f"""🟥🟥🟥New monthly high for {station.upper()}🟥🟥🟥
 {station.upper()} ({datetime.fromisoformat(station_latest['timestamp']).astimezone().strftime('%d.%m.%y, %H:%M')}): {station_latest[station]} €""")
-        elif station_latest[station] > highest_week[station]:
+        elif station_latest[station] >= highest_week[station]:
             text.append(f"""🟥New weekly high for {station.upper()}🟥
 {station.upper()} ({datetime.fromisoformat(station_latest['timestamp']).astimezone().strftime('%d.%m.%y, %H:%M')}): {station_latest[station]} €""")
 
     if len(text) > 0:
+        message_text = "\n".join(text)
+        print(message_text)
         chat_ids = json.loads(requests.get(api + "/chatIDs").text)
         for chat_id in chat_ids:
-            await bot.send_message(chat_id=chat_id, text="\n".join(text))
+            await bot.send_message(chat_id=chat_id, text=message_text)
 
 async def main():
     await check_new_low()
