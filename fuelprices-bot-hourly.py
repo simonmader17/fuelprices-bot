@@ -4,6 +4,7 @@ from datetime import datetime
 import asyncio
 import os
 from dotenv import load_dotenv
+import telegram
 from telegram import Bot
 
 load_dotenv()
@@ -30,10 +31,10 @@ async def check_new_low():
             continue;
         elif station_latest[station] <= lowest_month[station]:
             # New monthly low
-            text.append(f"""🟩🟩🟩New monthly low for {station.upper()}🟩🟩🟩
+            text.append(f"""🟩🟩🟩 *New monthly low for {station.upper()}* 🟩🟩🟩
 {station.upper()} ({datetime.fromisoformat(station_latest['timestamp']).astimezone().strftime('%d.%m.%y, %H:%M')}): {station_latest[station]} €""")
         elif station_latest[station] <= lowest_week[station]:
-            text.append(f"""🟩New weekly low for {station.upper()}🟩
+            text.append(f"""🟩 *New weekly low for {station.upper()}* 🟩
 {station.upper()} ({datetime.fromisoformat(station_latest['timestamp']).astimezone().strftime('%d.%m.%y, %H:%M')}): {station_latest[station]} €""")
 
     if len(text) > 0:
@@ -54,10 +55,10 @@ async def check_new_high():
             continue;
         elif station_latest[station] >= highest_month[station]:
             # New monthly low
-            text.append(f"""🟥🟥🟥New monthly high for {station.upper()}🟥🟥🟥
+            text.append(f"""🟥🟥🟥 *New monthly high for {station.upper()}* 🟥🟥🟥
 {station.upper()} ({datetime.fromisoformat(station_latest['timestamp']).astimezone().strftime('%d.%m.%y, %H:%M')}): {station_latest[station]} €""")
         elif station_latest[station] >= highest_week[station]:
-            text.append(f"""🟥New weekly high for {station.upper()}🟥
+            text.append(f"""🟥 *New weekly high for {station.upper()}* 🟥
 {station.upper()} ({datetime.fromisoformat(station_latest['timestamp']).astimezone().strftime('%d.%m.%y, %H:%M')}): {station_latest[station]} €""")
 
     if len(text) > 0:
@@ -65,7 +66,7 @@ async def check_new_high():
         print(message_text)
         chat_ids = json.loads(requests.get(api + "/chatIDs").text)
         for chat_id in chat_ids:
-            await bot.send_message(chat_id=chat_id, text=message_text)
+            await bot.send_message(chat_id=chat_id, text=message_text, parse_mode=telegram.constants.ParseMode.MARKDOWN_V2)
 
 async def main():
     await check_new_low()
