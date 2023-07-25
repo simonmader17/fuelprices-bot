@@ -18,28 +18,35 @@ lowest_month = json.loads(requests.get(api + "/lowestSinceDays?days=30").text)
 highest_week = json.loads(requests.get(api + "/highestSinceDays?days=7").text)
 highest_month = json.loads(requests.get(api + "/highestSinceDays?days=30").text)
 
-gas_stations = ["jet", "avanti", "jetLangenrohr", "bp"]
+gas_stations = {"jet": "Jet St. Pölten", "avanti": "Avanti St. Pölten", "jetLangenrohr": "Jet Langenrohr", "bp": "BP Böheimkirchen"}
 
 async def check_new_low():
     print("Checking for new lows...")
 
     text = []
-    for station in gas_stations:
+    monthly = False
+    for station, label in gas_stations.items():
         station_latest = json.loads(requests.get(api + f"/latest{station[0].upper() + station[1:]}").text)
         station_before_latest = json.loads(requests.get(api + f"/latest{station[0].upper() + station[1:]}?i=1").text)
         if station_latest[station] == station_before_latest[station]:
             continue;
         elif station_latest[station] <= lowest_month[station]:
             # New monthly low
-            text.append(f"""🟩🟩🟩 *New monthly low for {station.upper()}* 🟩🟩🟩
-{station.upper()} \({datetime.fromisoformat(station_latest['timestamp']).astimezone().strftime('%d.%m.%y, %H:%M')}\): {station_latest[station]} €""")
+            monthly = True
+            text.append(f"""*New monthly low for {label}*
+{label} \({datetime.fromisoformat(station_latest['timestamp']).astimezone().strftime('%d.%m.%y, %H:%M')}\): {str(station_latest[station]).replace(".", ",")} €""")
         elif station_latest[station] <= lowest_week[station]:
-            text.append(f"""🟩 *New weekly low for {station.upper()}* 🟩
-{station.upper()} \({datetime.fromisoformat(station_latest['timestamp']).astimezone().strftime('%d.%m.%y, %H:%M')}\): {station_latest[station]} €""")
+            # New weekly low
+            text.append(f"""*New weekly low for {label}*
+{label} \({datetime.fromisoformat(station_latest['timestamp']).astimezone().strftime('%d.%m.%y, %H:%M')}\): {str(station_latest[station]).replace(".", ",")} €""")
 
     if len(text) > 0:
         message_text = "\n".join(text)
         message_text = message_text.replace(".", "\.")
+        if monthly:
+            message_text = f"🟩🟩🟩\n{message_text}\n🟩🟩🟩"
+        else:
+            message_text = f"🟩\n{message_text}\n🟩"
         print(message_text)
         chat_ids = json.loads(requests.get(api + "/chatIDs").text)
         for chat_id in chat_ids:
@@ -49,22 +56,29 @@ async def check_new_high():
     print("Checking for new highs...")
 
     text = []
-    for station in gas_stations:
+    monthly = False
+    for station, label in gas_stations.items():
         station_latest = json.loads(requests.get(api + f"/latest{station[0].upper() + station[1:]}").text)
         station_before_latest = json.loads(requests.get(api + f"/latest{station[0].upper() + station[1:]}?i=1").text)
         if station_latest[station] == station_before_latest[station]:
             continue;
         elif station_latest[station] >= highest_month[station]:
-            # New monthly low
-            text.append(f"""🟥🟥🟥 *New monthly high for {station.upper()}* 🟥🟥🟥
-{station.upper()} \({datetime.fromisoformat(station_latest['timestamp']).astimezone().strftime('%d.%m.%y, %H:%M')}\): {station_latest[station]} €""")
+            # New monthly high
+            monthly = True
+            text.append(f"""*New monthly high for {label}*
+{label} \({datetime.fromisoformat(station_latest['timestamp']).astimezone().strftime('%d.%m.%y, %H:%M')}\): {str(station_latest[station]).replace(".", ",")} €""")
         elif station_latest[station] >= highest_week[station]:
-            text.append(f"""🟥 *New weekly high for {station.upper()}* 🟥
-{station.upper()} \({datetime.fromisoformat(station_latest['timestamp']).astimezone().strftime('%d.%m.%y, %H:%M')}\): {station_latest[station]} €""")
+            # New weekly high
+            text.append(f"""*New weekly high for {label}*
+{label} \({datetime.fromisoformat(station_latest['timestamp']).astimezone().strftime('%d.%m.%y, %H:%M')}\): {str(station_latest[station]).replace(".", ",")} €""")
 
     if len(text) > 0:
         message_text = "\n".join(text)
         message_text = message_text.replace(".", "\.")
+        if monthly:
+            message_text = f"🟥🟥🟥\n{message_text}\n🟥🟥🟥"
+        else:
+            message_text = f"🟥\n{message_text}\n🟥"
         print(message_text)
         chat_ids = json.loads(requests.get(api + "/chatIDs").text)
         for chat_id in chat_ids:
