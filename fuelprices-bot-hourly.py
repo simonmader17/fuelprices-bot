@@ -32,13 +32,14 @@ async def check_new_low():
         elif station_latest[station] <= lowest_month[station]:
             # New monthly low
             text.append(f"""🟩🟩🟩 *New monthly low for {station.upper()}* 🟩🟩🟩
-{station.upper()} ({datetime.fromisoformat(station_latest['timestamp']).astimezone().strftime('%d.%m.%y, %H:%M')}): {station_latest[station]} €""")
+{station.upper()} \({datetime.fromisoformat(station_latest['timestamp']).astimezone().strftime('%d.%m.%y, %H:%M')}\): {station_latest[station]} €""")
         elif station_latest[station] <= lowest_week[station]:
             text.append(f"""🟩 *New weekly low for {station.upper()}* 🟩
-{station.upper()} ({datetime.fromisoformat(station_latest['timestamp']).astimezone().strftime('%d.%m.%y, %H:%M')}): {station_latest[station]} €""")
+{station.upper()} \({datetime.fromisoformat(station_latest['timestamp']).astimezone().strftime('%d.%m.%y, %H:%M')}\): {station_latest[station]} €""")
 
     if len(text) > 0:
         message_text = "\n".join(text)
+        message_text = message_text.replace(".", "\.")
         print(message_text)
         chat_ids = json.loads(requests.get(api + "/chatIDs").text)
         for chat_id in chat_ids:
@@ -56,13 +57,14 @@ async def check_new_high():
         elif station_latest[station] >= highest_month[station]:
             # New monthly low
             text.append(f"""🟥🟥🟥 *New monthly high for {station.upper()}* 🟥🟥🟥
-{station.upper()} ({datetime.fromisoformat(station_latest['timestamp']).astimezone().strftime('%d.%m.%y, %H:%M')}): {station_latest[station]} €""")
+{station.upper()} \({datetime.fromisoformat(station_latest['timestamp']).astimezone().strftime('%d.%m.%y, %H:%M')}\): {station_latest[station]} €""")
         elif station_latest[station] >= highest_week[station]:
             text.append(f"""🟥 *New weekly high for {station.upper()}* 🟥
-{station.upper()} ({datetime.fromisoformat(station_latest['timestamp']).astimezone().strftime('%d.%m.%y, %H:%M')}): {station_latest[station]} €""")
+{station.upper()} \({datetime.fromisoformat(station_latest['timestamp']).astimezone().strftime('%d.%m.%y, %H:%M')}\): {station_latest[station]} €""")
 
     if len(text) > 0:
         message_text = "\n".join(text)
+        message_text = message_text.replace(".", "\.")
         print(message_text)
         chat_ids = json.loads(requests.get(api + "/chatIDs").text)
         for chat_id in chat_ids:
