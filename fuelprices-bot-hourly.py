@@ -6,6 +6,12 @@ import os
 from dotenv import load_dotenv
 import telegram
 from telegram import Bot
+import logging
+logging.basicConfig(
+    format='%(asctime)s [ %(levelname)-8s ] %(message)s',
+    level=logging.DEBUG,
+    datefmt='%Y-%m-%d %H:%M:%S'
+)
 
 load_dotenv()
 TOKEN = os.getenv("TOKEN")
@@ -21,7 +27,7 @@ highest_month = json.loads(requests.get(api + "/highestSinceDays?days=30").text)
 gas_stations = {"jet": "Jet St. Pölten", "avanti": "Avanti St. Pölten", "jetLangenrohr": "Jet Langenrohr", "bp": "BP Böheimkirchen"}
 
 async def check_new_low():
-    print("Checking for new lows...")
+    logging.info("Checking for new lows...")
 
     text = []
     monthly = False
@@ -40,6 +46,10 @@ async def check_new_low():
             text.append(f"""*New weekly low for {label}*
 {label} \({datetime.fromisoformat(station_latest['timestamp']).astimezone().strftime('%d.%m.%y, %H:%M')}\): {str(station_latest[station]).replace(".", ",")} €""")
 
+    if len(text) == 0:
+        latest = json.loads(requests.get(api + "/latest").text)
+        logging.error(latest)
+
     if len(text) > 0:
         message_text = "\n".join(text)
         message_text = message_text.replace(".", "\.")
@@ -47,7 +57,7 @@ async def check_new_low():
             message_text = f"🟩🟩🟩\n{message_text}\n🟩🟩🟩"
         else:
             message_text = f"🟩\n{message_text}\n🟩"
-        print(message_text)
+        logging.info(message_text)
         chat_ids = json.loads(requests.get(api + "/chatIDs").text)
         for chat_id in chat_ids:
             await bot.send_message(chat_id=chat_id, text=message_text)
@@ -72,6 +82,10 @@ async def check_new_high():
             text.append(f"""*New weekly high for {label}*
 {label} \({datetime.fromisoformat(station_latest['timestamp']).astimezone().strftime('%d.%m.%y, %H:%M')}\): {str(station_latest[station]).replace(".", ",")} €""")
 
+    if len(text) == 0:
+        latest = json.loads(requests.get(api + "/latest").text)
+        logging.error(latest)
+
     if len(text) > 0:
         message_text = "\n".join(text)
         message_text = message_text.replace(".", "\.")
@@ -79,7 +93,7 @@ async def check_new_high():
             message_text = f"🟥🟥🟥\n{message_text}\n🟥🟥🟥"
         else:
             message_text = f"🟥\n{message_text}\n🟥"
-        print(message_text)
+        logging.info(message_text)
         chat_ids = json.loads(requests.get(api + "/chatIDs").text)
         for chat_id in chat_ids:
             await bot.send_message(chat_id=chat_id, text=message_text, parse_mode=telegram.constants.ParseMode.MARKDOWN_V2)
