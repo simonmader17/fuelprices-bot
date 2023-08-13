@@ -18,6 +18,11 @@ TOKEN = os.getenv("TOKEN")
 api = os.getenv("API")
 bot = Bot(token=TOKEN)
 
+logging.info("""
+=======================================
+Starting new price lows and highs check
+=======================================""")
+
 # latest = json.loads(requests.get(api + "/latest").text)
 lowest_week = json.loads(requests.get(api + "/lowestSinceDays?days=7").text)
 lowest_month = json.loads(requests.get(api + "/lowestSinceDays?days=30").text)
@@ -60,10 +65,10 @@ async def check_new_low():
         logging.info(message_text)
         chat_ids = json.loads(requests.get(api + "/chatIDs").text)
         for chat_id in chat_ids:
-            await bot.send_message(chat_id=chat_id, text=message_text)
+            await bot.send_message(chat_id=chat_id, text=message_text, parse_mode=telegram.constants.ParseMode.MARKDOWN_V2)
 
 async def check_new_high():
-    print("Checking for new highs...")
+    logging.info("Checking for new highs...")
 
     text = []
     monthly = False
